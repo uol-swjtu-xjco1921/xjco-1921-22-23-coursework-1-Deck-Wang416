@@ -1,0 +1,1 @@
+The test files have been arranged according to their corresponding task, with the input files stored in the 'input' folder and the expected output files in the 'output' folder. However, it's worth noting that you should supplement these test files with your own data, as our testing scripts will use additional test data to evaluate the performance of your program.

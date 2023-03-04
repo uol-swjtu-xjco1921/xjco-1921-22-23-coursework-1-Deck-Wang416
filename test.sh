@@ -154,7 +154,7 @@ do
     echo "Bad Dimensions (big)"
     filename="bad_dimensions.pgm"
     full_path=$path$filename
-    run_test ./$testExecutable $full_path "tmp" 4 "ERROR: Bad Dimensions ($full_path)"
+    run_test ./$testExecutable $full_path "tmp" 5 "ERROR: Bad Dimensions ($full_path)"
 
     ### Functionality Tests ###
 

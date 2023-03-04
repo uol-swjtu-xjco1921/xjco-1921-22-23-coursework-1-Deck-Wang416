@@ -1,21 +1,3 @@
-/***********************************/
-/* XJCO 1921M Programming Project  */
-/* 2022-23 Spring Semester         */
-/*           			   */
-/*                                 */
-/* Version 0.2: Zheng Wang         */
-/* Version 0.1: Hamish Carr        */
-/***********************************/
-
-/***********************************/
-/* A first iteration to take a pgm */
-/* file in ASCII and echo the data */
-/***********************************/
-
-/***********************************/
-/* Main Routine                    */
-/***********************************/
-
 /* library for I/O routines        */
 #include <stdio.h>
 
@@ -24,8 +6,15 @@
 
 #define EXIT_NO_ERRORS 0
 #define EXIT_WRONG_ARG_COUNT 1
-#define EXIT_BAD_INPUT_FILE 2
-#define EXIT_BAD_OUTPUT_FILE 3
+#define EXIT_BAD_FILE_NAME 2
+#define EXIT_BAD_MAGIC_NUMBER 3
+#define EXIT_BAD_COMMENT_LINE 4
+#define EXIT_BAD_DIAMENSIONS 5
+#define EXIT_BAD_MAX_GRAY_VALUE 6
+#define EXIT_IMAGE_MALLOC_FAILED 7
+#define EXIT_BAD_DATA 8
+#define EXIT_OUTPUT_FAILED 9
+#define EXIT_MISCELLANEOUS 100
 
 #define MAGIC_NUMBER_RAW_PGM 0x3550
 #define MAGIC_NUMBER_ASCII_PGM 0x3250
@@ -43,13 +32,21 @@
 /* returns 0 on success            */
 /* non-zero error code on fail     */
 /***********************************/
+
 int main(int argc, char **argv)
 { /* main() */
 	/* check for correct number of arguments */
-	if (argc != 3)	
+	if (argc == 1 )
+	{
+		printf("Usage: %s inputImage.pgm outputImage.pgm\n", argv[0]);
+		/* and return an error code      */
+		return EXIT_NO_ERRORS;
+	}
+	
+	else if (argc != 3)	
 	{ /* wrong arg count */
 		/* print an error message        */
-		printf("Usage: %s inputImage.pgm outputImage.pgm\n", argv[0]);
+		printf("ERROR: Bad Arguments\n"); 
 		/* and return an error code      */
 		return EXIT_WRONG_ARG_COUNT;
 	} /* wrong arg count */
@@ -88,7 +85,10 @@ int main(int argc, char **argv)
 
 	/* if it fails, return error code        */
 	if (inputFile == NULL)
-		return EXIT_BAD_INPUT_FILE;
+	{
+		printf("ERROR: Bad File Name (%s)\n",argv[1]);
+		return EXIT_BAD_FILE_NAME;
+	}
 
 	/* read in the magic number              */
 	magic_number[0] = getc(inputFile);
@@ -97,14 +97,14 @@ int main(int argc, char **argv)
 	/* sanity check on the magic number      */
 	if (*magic_Number != MAGIC_NUMBER_ASCII_PGM)
 	{ /* failed magic number check   */
-		/* be tidy: close the file       */
+		/* še tidy: close the file       */
 		fclose(inputFile);
 
 		/* print an error message */
-		printf("Error: Failed to read pgm image from file %s\n", argv[1]);	
+		printf("ERROR: Bad Magic Number (%s)\n", argv[1]);	
 
 		/* and return                    */
-		return EXIT_BAD_INPUT_FILE;
+		return EXIT_BAD_MAGIC_NUMBER;
 	} /* failed magic number check   */
 
 	/* scan whitespace if present            */
@@ -126,14 +126,14 @@ int main(int argc, char **argv)
 			free(commentLine);
 			/* close file            */
 			fclose(inputFile);
-
 			/* print an error message */
-			printf("Error: Failed to read pgm image from file %s\n", argv[1]);	
+			printf("ERROR: Bad Comment Line (%s) \n", argv[1]);	
 
 			/* and return            */
-			return EXIT_BAD_INPUT_FILE;
+			return EXIT_BAD_COMMENT_LINE;
 		} /* NULL comment read   */
 	} /* comment line */
+
 	else
 	{ /* not a comment line */
 		/* put character back            */
@@ -151,22 +151,34 @@ int main(int argc, char **argv)
 			(width 	< MIN_IMAGE_DIMENSION	) 	||
 			(width 	> MAX_IMAGE_DIMENSION	) 	||
 			(height < MIN_IMAGE_DIMENSION	) 	||
-			(height > MAX_IMAGE_DIMENSION	) 	||
-			(maxGray	!= 255		)
+			(height > MAX_IMAGE_DIMENSION	) 	
 		)
-	{ /* failed size sanity check    */
+	{
+		/* failed size sanity check    */
 		/* free up the memory            */
 		free(commentLine);
-
 		/* be tidy: close file pointer   */
 		fclose(inputFile);
-
+	    /* failed size sanity check    */
 		/* print an error message */
-		printf("Error: Failed to read pgm image from file %s\n", argv[1]);	
-
+		printf("ERROR: Bad Dimensions (%s)\n", argv[1]);	
 		/* and return                    */
-		return EXIT_BAD_INPUT_FILE;
-	} /* failed size sanity check    */
+		return EXIT_BAD_DIAMENSIONS;
+	}
+
+	if (maxGray != 255)
+	{
+		/* failed grays sanity check    */
+		/* free up the memory            */
+		free(commentLine);
+		/* be tidy: close file pointer   */
+		fclose(inputFile);
+	    /* failed grays  sanity check    */
+		/* print an error message */
+		printf("ERROR: Bad Max Gray Value (%s)\n", argv[1]);	
+		/* and return                    */
+		return EXIT_BAD_MAX_GRAY_VALUE;
+	}
 
 	/* allocate the data pointer             */
 	long nImageBytes = width * height * sizeof(unsigned char);
@@ -182,13 +194,13 @@ int main(int argc, char **argv)
 		fclose(inputFile);
 
 		/* print an error message */
-		printf("Error: Failed to read pgm image from file %s\n", argv[1]);	
+		printf("ERROR: Image Malloc Failed \n");	
 
 		/* return error code             */
-		return EXIT_BAD_INPUT_FILE;
+		return EXIT_IMAGE_MALLOC_FAILED;
 	} /* malloc failed */
 
-	/* pointer for efficient read code       */
+	/* pointer for efficient read code  */    
 	for (unsigned char *nextGrayValue = imageData; nextGrayValue < imageData + nImageBytes; nextGrayValue++)
 	{ /* per gray value */
 		/* read next value               */
@@ -206,10 +218,10 @@ int main(int argc, char **argv)
 			fclose(inputFile);
 
 			/* print error message   */
-			printf("Error: Failed to read pgm image from file %s\n", argv[1]);	
+			printf("ERROR: Output Failed (%s) \n", argv[2]);	
 
 			/* and return            */
-			return EXIT_BAD_INPUT_FILE;
+			return EXIT_OUTPUT_FAILED;
 		} /* fscanf failed */
 
 		/* set the pixel value           */
@@ -230,10 +242,10 @@ int main(int argc, char **argv)
 		free(imageData);
 
 		/* print an error message        */
-		printf("Error: Failed to write pgm image to file %s\n", argv[2]);	
+		printf("ERROR: Output Failed (%s) \n", argv[2]);	
 
 		/* return an error code          */
-		return EXIT_BAD_OUTPUT_FILE;
+		return EXIT_OUTPUT_FAILED;
 	} /* NULL output file */
 
 	/* write magic number, size & gray value */
@@ -247,10 +259,10 @@ int main(int argc, char **argv)
 		free(imageData);
 
 		/* print an error message        */
-		printf("Error: Failed to write pgm image to file %s\n", argv[2]);	
+		printf("ERROR: Output Failed (%s) \n", argv[2]);	
 
 		/* return an error code          */
-		return EXIT_BAD_OUTPUT_FILE;
+		return EXIT_OUTPUT_FAILED;
 	} /* dimensional write failed    */
 
 	/* pointer for efficient write code      */
@@ -270,13 +282,14 @@ int main(int argc, char **argv)
 			free(imageData);
 
 			/* print error message   */
-			printf("Error: Failed to write pgm image to file %s\n", argv[2]);	
+			printf("ERROR: Output Failed (%s) \n", argv[2]);	
 
 			/* return an error code  */
-			return EXIT_BAD_OUTPUT_FILE;
+			return EXIT_OUTPUT_FAILED;
 		} /* data write failed   */
 	} /* per gray value */
 
 	/* at this point, we are done and can exit with a success code */
+	printf("ECHOED");	
 	return EXIT_NO_ERRORS;
 } /* main() */
