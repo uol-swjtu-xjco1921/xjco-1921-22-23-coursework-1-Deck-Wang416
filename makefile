@@ -35,4 +35,3 @@ clean:
 
 pgmEcho: pgmEcho.o handleFile.o pgmImage.o
 	$(CC) $(CCFLAGS) $^ -o $@
-

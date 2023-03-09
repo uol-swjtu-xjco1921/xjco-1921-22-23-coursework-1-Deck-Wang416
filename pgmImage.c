@@ -3,6 +3,7 @@
 
 #include "pgmImage.h"
 
+/* Declare structural variables */
 struct PGM_Image* new_img()
 {
     struct PGM_Image *img = malloc(sizeof(struct PGM_Image));
@@ -17,6 +18,7 @@ struct PGM_Image* new_img()
     return img;
 }
 
+/* Free the memory space occupied by commentLine and imageData */
 void free_img(struct PGM_Image *img)
 {
     free(img->commentLine);

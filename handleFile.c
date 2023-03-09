@@ -6,6 +6,7 @@
 
 int scanCount;
 
+/* Read and write files */
 int handleFile(int argc, char* executable_name, char* input_filename, char* output_filename,
 FILE *inputFile, FILE *outputFile)
 {
@@ -48,16 +49,16 @@ FILE *inputFile, FILE *outputFile)
     if(fileWriting != EXIT_NO_ERRORS)
     return EXIT_OUTPUT_FAILED;
 
-    free(img);
+    free_img(img);
 
     printf("ECHOED");	
     
 	return EXIT_NO_ERRORS;
 }
-
+/* Check arguments */
 int check_args(int argc, char* executable_name) 
 {
-    if (argc == 1) 
+    if (argc == 1) // Give user input prompt
     {
         printf("Usage: %s inputImage.pgm outputImage.pgm\n", executable_name);
         return EXIT_MISCELLANEOUS;
@@ -72,7 +73,7 @@ int check_args(int argc, char* executable_name)
     return EXIT_NO_ERRORS;
 
 }
-
+/* Open input file */
 int open_input_file(FILE *inputFile, char *input_filename)
 {
     if (inputFile == NULL)
@@ -83,7 +84,7 @@ int open_input_file(FILE *inputFile, char *input_filename)
 
     return EXIT_NO_ERRORS;
 }
-
+/* check magic number */
 int check_magic_number(FILE *inputFile, char *input_filename, struct PGM_Image* img)
 {
     unsigned char magic_number[2] = {'0','0'};
@@ -101,7 +102,7 @@ int check_magic_number(FILE *inputFile, char *input_filename, struct PGM_Image* 
 
     return EXIT_NO_ERRORS;
 }
-
+// read commentline
 int read_comment_line(FILE *inputFile, struct PGM_Image* img)
 {
     scanCount = fscanf(inputFile, " ");
@@ -132,6 +133,7 @@ int read_comment_line(FILE *inputFile, struct PGM_Image* img)
     return EXIT_NO_ERRORS;
 }
 
+/* read image header */
 int read_image_header(FILE *inputFile, char *input_filename, struct PGM_Image *img)
 {
     scanCount = fscanf(inputFile, " %u %u %u", &img->width, &img->height, &img->maxGray);
@@ -155,7 +157,7 @@ int read_image_header(FILE *inputFile, char *input_filename, struct PGM_Image *i
 
     return EXIT_NO_ERRORS;
 }
-
+/* Allocate memory for image data */
 int allocate_image_data(FILE *inputFile, struct PGM_Image *img) 
 {  
     img->nImageBytes = img->width * img->height * sizeof(unsigned char);
@@ -171,7 +173,7 @@ int allocate_image_data(FILE *inputFile, struct PGM_Image *img)
     
     return EXIT_NO_ERRORS;
 }
-
+/* Sanity check */
 int sanity_check(FILE *inputFile, char *input_filename, struct PGM_Image* img) 
 {
     for (unsigned char *nextGrayValue = img->imageData; nextGrayValue < img->imageData + img->nImageBytes; nextGrayValue++) {
@@ -180,7 +182,7 @@ int sanity_check(FILE *inputFile, char *input_filename, struct PGM_Image* img)
 
         if ((scanCount != 1) || (grayValue < 0) || (grayValue > 255)) 
         {
-            free(img);
+            free_img(img);
 
             fclose(inputFile);
 
@@ -196,7 +198,7 @@ int sanity_check(FILE *inputFile, char *input_filename, struct PGM_Image* img)
 
     return EXIT_NO_ERRORS;
 }
-
+/* Write file */
 int writeFile(FILE* outputFile, char* output_filename, struct PGM_Image *img) 
 {
     if (outputFile == NULL) 
@@ -212,7 +214,7 @@ int writeFile(FILE* outputFile, char* output_filename, struct PGM_Image *img)
 
 	if (nBytesWritten < 0)
 	{ 
-		free(img);
+		free_img(img);
 
 		printf("ERROR: Output Failed (%s) \n", output_filename);	
 
@@ -227,7 +229,7 @@ int writeFile(FILE* outputFile, char* output_filename, struct PGM_Image *img)
 
         if (nBytesWritten < 0)
         { 
-            free(img);
+            free_img(img);
 
             printf("ERROR: Output Failed (%s)\n", output_filename);	
 
