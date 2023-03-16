@@ -33,5 +33,5 @@ clean:
 # but as you refactor and add more .c and .h files
 # these recipes will become more complex.
 
-pgmEcho: pgmEcho.o handleFile.o pgmImage.o
+pgmEcho: handleFile.o pgmImage.o pgma2b.o pgmb2a.o
 	$(CC) $(CCFLAGS) $^ -o $@
