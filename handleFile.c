@@ -45,8 +45,12 @@ FILE *inputFile, FILE *outputFile)
     if(checking_sanity != EXIT_NO_ERRORS)
     return EXIT_BAD_DATA;
 
-    int fileWriting = writeFile(outputFile, output_filename, img);
-    if(fileWriting != EXIT_NO_ERRORS)
+    int image_header_writing = write_image_header(outputFile, output_filename, img);
+    if(image_header_writing != EXIT_NO_ERRORS)
+    return EXIT_OUTPUT_FAILED;
+
+    int matrixWriting = writeMatrix(outputFile, output_filename, img);
+    if(matrixWriting != EXIT_NO_ERRORS)
     return EXIT_OUTPUT_FAILED;
 
     free_img(img);
@@ -87,13 +91,11 @@ int open_input_file(FILE *inputFile, char *input_filename)
 /* check magic number */
 int check_magic_number(FILE *inputFile, char *input_filename, struct PGM_Image* img)
 {
-    unsigned char magic_number[2] = {'0','0'};
-    img->magic_Number = (unsigned short *) magic_number;
-
-    magic_number[0] = getc(inputFile);
-    magic_number[1] = getc(inputFile);
-
-    if (*img->magic_Number != MAGIC_NUMBER_ASCII_PGM)
+    img->magic_number[0] = getc(inputFile);
+    img->magic_number[1] = getc(inputFile);
+    unsigned short* magic_Number = (unsigned short *) img->magic_number;
+    
+    if ((*magic_Number) != MAGIC_NUMBER_ASCII_PGM)
     {
         fclose(inputFile);
         printf("ERROR: Bad Magic Number (%s)\n", input_filename);
@@ -199,7 +201,7 @@ int sanity_check(FILE *inputFile, char *input_filename, struct PGM_Image* img)
     return EXIT_NO_ERRORS;
 }
 /* Write file */
-int writeFile(FILE* outputFile, char* output_filename, struct PGM_Image *img) 
+int write_image_header(FILE* outputFile, char* output_filename, struct PGM_Image *img) 
 {
     if (outputFile == NULL) 
     {
@@ -210,7 +212,7 @@ int writeFile(FILE* outputFile, char* output_filename, struct PGM_Image *img)
         return EXIT_OUTPUT_FAILED;
     }
 
-	size_t nBytesWritten = fprintf(outputFile, "P2\n%d %d\n%d\n", img->width, img->height, img->maxGray);
+	size_t nBytesWritten = fprintf(outputFile, "P%c\n%d %d\n%d\n", img->magic_number[1], img->width, img->height, img->maxGray);
 
 	if (nBytesWritten < 0)
 	{ 
@@ -221,11 +223,16 @@ int writeFile(FILE* outputFile, char* output_filename, struct PGM_Image *img)
 		return EXIT_OUTPUT_FAILED;
 	} 
 
+    return EXIT_NO_ERRORS;
+}
+
+int writeMatrix(FILE* outputFile, char* output_filename, struct PGM_Image *img)
+{
     for (unsigned char *nextGrayValue = img->imageData; nextGrayValue < img->imageData + img->nImageBytes; nextGrayValue++)
     { 
         int nextCol = (nextGrayValue - img->imageData + 1) % img->width;
         
-        nBytesWritten = fprintf(outputFile, "%d%c", *nextGrayValue, (nextCol ? ' ' : '\n') );
+        size_t nBytesWritten = fprintf(outputFile, "%d%c", *nextGrayValue, (nextCol ? ' ' : '\n') );
 
         if (nBytesWritten < 0)
         { 

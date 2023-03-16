@@ -3,7 +3,7 @@
 
 struct PGM_Image 
 {
-	unsigned short* magic_Number;
+	unsigned char magic_number[2];
 	char *commentLine;
 	unsigned int width;
 	unsigned int height;

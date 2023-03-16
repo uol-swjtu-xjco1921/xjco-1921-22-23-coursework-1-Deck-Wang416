@@ -8,7 +8,8 @@ struct PGM_Image* new_img()
 {
     struct PGM_Image *img = malloc(sizeof(struct PGM_Image));
 
-    img->magic_Number = 0;
+    img->magic_number[0] = '0';
+    img->magic_number[1] = '0';
     img->commentLine = NULL;
     img->width = 0;
     img->height = 0;

@@ -25,13 +25,14 @@
 
 int handleFile(int argc, char* executable_name, char* input_filename, char* output_filename,
 FILE *inputFile,FILE *outputFile);
-int check_args(int argc, char* filename);
-int open_input_file(FILE *inputFile, char *filename);
-int check_magic_number(FILE *inputFile, char *filename, struct PGM_Image* img);
+int check_args(int argc, char* executable_name);
+int open_input_file(FILE *inputFile, char *input_filename);
+int check_magic_number(FILE *inputFile, char *input_filename, struct PGM_Image* img);
 int read_comment_line(FILE *inputFile, struct PGM_Image* img);
-int read_image_header(FILE *inputFile, char *filename, struct PGM_Image *image);
-int allocate_image_data(FILE *inputFile, struct PGM_Image *image);
+int read_image_header(FILE *inputFile, char *input_filename, struct PGM_Image *img);
+int allocate_image_data(FILE *inputFile, struct PGM_Image *img);
 int sanity_check(FILE *inputFile, char *input_filename, struct PGM_Image* img);
-int writeFile(FILE* outputFile, char* output_filename, struct PGM_Image* img);
+int write_image_header(FILE* outputFile, char* output_filename, struct PGM_Image *img);
+int writeMatrix(FILE* outputFile, char* output_filename, struct PGM_Image *img);
 
 #endif
