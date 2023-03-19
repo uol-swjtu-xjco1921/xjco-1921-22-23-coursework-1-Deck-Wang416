@@ -5,34 +5,44 @@
 #include "handleFile.h"
 
 // Convert ascii files to binary files
-int pgma2b(int argc, char* executable_name, char *input_filename, char *output_filename, FILE* inputFile, FILE *outputFile) 
+int pgma2b(char *input_filename, char *output_filename, FILE* inputFile, FILE *outputFile) 
 {
     struct PGM_Image* img = new_img();
 
     // Check format and read ASCII file
-    check_args(argc, executable_name);
+    int open_input_result = open_input_file(inputFile, input_filename);
+    if(open_input_result != EXIT_NO_ERRORS)
+    return open_input_result;
 
-    open_input_file(inputFile, input_filename);
+    int check_magic_result = check_magic_number(inputFile, input_filename, img);
+    if(check_magic_result != EXIT_NO_ERRORS)
+    return check_magic_result;
 
-    check_magic_number(inputFile, input_filename, img);
+    int comment_line_reading = read_comment_line(inputFile, img);
+    if(comment_line_reading != EXIT_NO_ERRORS)
+    return comment_line_reading;
 
-    read_comment_line(inputFile, img);
+    int image_header_reading = read_image_header(inputFile, input_filename, img);
+    if(image_header_reading != EXIT_NO_ERRORS)
+    return image_header_reading;
 
-    read_image_header(inputFile, input_filename, img);
+    int image_data_allocating = allocate_image_data(inputFile, img);  
+    if(image_data_allocating != EXIT_NO_ERRORS)
+    return image_data_allocating;
 
-    allocate_image_data(inputFile, img);
+    /* Read ascii data */
+    int reading_ascii = read_ascii(inputFile, input_filename, img);
+    if(reading_ascii != EXIT_NO_ERRORS)
+    return reading_ascii;
 
-    sanity_check(inputFile, input_filename, img);
-
-    write_image_header(outputFile, output_filename, img);
+    write_image_header(outputFile, output_filename, img, 5);
 
     // Write binary data
-    fwrite(img->imageData,sizeof(unsigned char), img->width * img-> height, outputFile);
+    fwrite(img->imageData, sizeof(unsigned char), img->width * img-> height, outputFile);
     
     fclose(inputFile);
-    fclose(outputFile);
 
-    printf("CONVERTED");
+    printf("CONVERTED\n");
 
     return EXIT_NO_ERRORS;
 }

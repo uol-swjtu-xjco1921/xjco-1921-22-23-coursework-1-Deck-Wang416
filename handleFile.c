@@ -13,7 +13,11 @@ FILE *inputFile, FILE *outputFile)
     struct PGM_Image* img = new_img();
 
     int check_args_result = check_args(argc, executable_name);
-    if (check_args_result != EXIT_NO_ERRORS) 
+    
+    if (check_args_result == EXIT_MISCELLANEOUS) 
+    return EXIT_NO_ERRORS;
+
+    else if (check_args_result != EXIT_NO_ERRORS) 
     return check_args_result;
 
     int open_input_result = open_input_file(inputFile, input_filename);
@@ -41,17 +45,18 @@ FILE *inputFile, FILE *outputFile)
     if(image_data_allocating != EXIT_NO_ERRORS)
     return image_data_allocating;
 
-    int checking_sanity = sanity_check(inputFile, input_filename, img);
-    if(checking_sanity != EXIT_NO_ERRORS)
-    return EXIT_BAD_DATA;
+    int reading_ascii = read_ascii(inputFile, input_filename, img);
+    if(reading_ascii != EXIT_NO_ERRORS)
+    return reading_ascii;
 
-    int image_header_writing = write_image_header(outputFile, output_filename, img);
+    int image_header_writing = write_image_header(outputFile, output_filename, img, 2);
+
     if(image_header_writing != EXIT_NO_ERRORS)
-    return EXIT_OUTPUT_FAILED;
+    return image_header_writing;
 
     int matrixWriting = writeMatrix(outputFile, output_filename, img);
     if(matrixWriting != EXIT_NO_ERRORS)
-    return EXIT_OUTPUT_FAILED;
+    return matrixWriting;
 
     free_img(img);
 
@@ -159,6 +164,7 @@ int read_image_header(FILE *inputFile, char *input_filename, struct PGM_Image *i
 
     return EXIT_NO_ERRORS;
 }
+
 /* Allocate memory for image data */
 int allocate_image_data(FILE *inputFile, struct PGM_Image *img) 
 {  
@@ -175,10 +181,12 @@ int allocate_image_data(FILE *inputFile, struct PGM_Image *img)
     
     return EXIT_NO_ERRORS;
 }
-/* Sanity check */
-int sanity_check(FILE *inputFile, char *input_filename, struct PGM_Image* img) 
+
+/* Read data from ascii files */
+int read_ascii(FILE *inputFile, char *input_filename, struct PGM_Image* img) 
 {
-    for (unsigned char *nextGrayValue = img->imageData; nextGrayValue < img->imageData + img->nImageBytes; nextGrayValue++) {
+    for (unsigned char *nextGrayValue = img->imageData; nextGrayValue < img->imageData + img->nImageBytes; nextGrayValue++) 
+    {
         int grayValue = -1;
         scanCount = fscanf(inputFile, " %u", &grayValue);
 
@@ -200,8 +208,23 @@ int sanity_check(FILE *inputFile, char *input_filename, struct PGM_Image* img)
 
     return EXIT_NO_ERRORS;
 }
+
+/* Read data from binary files */
+int read_binary(FILE *inputFile, char *input_filename, struct PGM_Image* img) 
+{
+    unsigned char redundant_num = 0;
+    
+    fread(&redundant_num, sizeof(unsigned char), 1, inputFile);
+
+    fread(img->imageData, sizeof(unsigned char), img->width * img->height, inputFile);
+
+    fclose(inputFile);
+
+    return EXIT_NO_ERRORS;
+}
+
 /* Write file */
-int write_image_header(FILE* outputFile, char* output_filename, struct PGM_Image *img) 
+int write_image_header(FILE* outputFile, char* output_filename, struct PGM_Image *img, char num) 
 {
     if (outputFile == NULL) 
     {
@@ -211,17 +234,17 @@ int write_image_header(FILE* outputFile, char* output_filename, struct PGM_Image
    
         return EXIT_OUTPUT_FAILED;
     }
+    
+    size_t nBytesWritten = fprintf(outputFile, "P%d\n%d %d\n%d\n", num, img->width, img->height, img->maxGray);
+    if (nBytesWritten < 0)
+    { 
+        free_img(img);
 
-	size_t nBytesWritten = fprintf(outputFile, "P%c\n%d %d\n%d\n", img->magic_number[1], img->width, img->height, img->maxGray);
 
-	if (nBytesWritten < 0)
-	{ 
-		free_img(img);
+        printf("ERROR: Output Failed (%s) \n", output_filename);	
 
-		printf("ERROR: Output Failed (%s) \n", output_filename);	
-
-		return EXIT_OUTPUT_FAILED;
-	} 
+        return EXIT_OUTPUT_FAILED;
+    } 
 
     return EXIT_NO_ERRORS;
 }

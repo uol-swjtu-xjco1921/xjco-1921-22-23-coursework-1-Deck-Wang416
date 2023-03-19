@@ -3,6 +3,6 @@
 
 #include "handleFile.h"
 
-int pgmb2a(int argc, char* executable_name, char *input_filename, char *output_filename, FILE* inputFile, FILE* outputFile);
+int pgmb2a(char *input_filename, char *output_filename, FILE* inputFile, FILE* outputFile);
 
 #endif
