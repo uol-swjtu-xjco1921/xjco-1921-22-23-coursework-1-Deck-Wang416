@@ -19,6 +19,7 @@
 #define EXIT_MISCELLANEOUS 100
 
 #define MAGIC_NUMBER_ASCII_PGM 0x3250
+#define MAGIC_NUMBER_BINARY_PGM 0x3550
 #define MIN_IMAGE_DIMENSION 1
 #define MAX_IMAGE_DIMENSION 65536
 #define MAX_COMMENT_LINE_LENGTH 128
@@ -31,8 +32,9 @@ int check_magic_number(FILE *inputFile, char *input_filename, struct PGM_Image* 
 int read_comment_line(FILE *inputFile, struct PGM_Image* img);
 int read_image_header(FILE *inputFile, char *input_filename, struct PGM_Image *img);
 int allocate_image_data(FILE *inputFile, struct PGM_Image *img);
-int sanity_check(FILE *inputFile, char *input_filename, struct PGM_Image* img);
-int write_image_header(FILE* outputFile, char* output_filename, struct PGM_Image *img);
+int read_ascii(FILE *inputFile, char *input_filename, struct PGM_Image* img);
+int read_binary(FILE *inputFile, char *input_filename, struct PGM_Image* img);
+int write_image_header(FILE* outputFile, char* output_filename, struct PGM_Image *img, char num);
 int writeMatrix(FILE* outputFile, char* output_filename, struct PGM_Image *img);
 
 #endif

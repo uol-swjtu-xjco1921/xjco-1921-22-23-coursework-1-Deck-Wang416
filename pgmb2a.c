@@ -5,34 +5,55 @@
 #include "handleFile.h"
 
 // Convert binary files to ascii files
-int pgmb2a(int argc, char* executable_name, char *input_filename, char *output_filename, FILE* inputFile, FILE *outputFile) 
+int pgmb2a(char *input_filename, char *output_filename, FILE* inputFile, FILE *outputFile) 
 {
     struct PGM_Image* img = new_img();
 
     // Check format and read binary file
-    check_args(argc, executable_name);
+    int open_input_result = open_input_file(inputFile, input_filename);
+    if(open_input_result != EXIT_NO_ERRORS)
+    return open_input_result;
 
-    open_input_file(inputFile, input_filename);
-
-    check_magic_number(inputFile, input_filename, img);
-
-    read_comment_line(inputFile, img);
-
-    read_image_header(inputFile, input_filename, img);
-
-    allocate_image_data(inputFile, img);
-
-    write_image_header(outputFile, output_filename, img);
+    img->magic_number[0] = getc(inputFile);
+    img->magic_number[1] = getc(inputFile);
+    unsigned short* magic_Number = (unsigned short *) img->magic_number;
     
-    fread(img->imageData, sizeof(unsigned char), img->width * img-> height, inputFile);
+    if ((*magic_Number) != MAGIC_NUMBER_BINARY_PGM)
+    {
+        fclose(inputFile);
+        printf("ERROR: Bad Magic Number (%s)\n", input_filename);
+        return EXIT_BAD_MAGIC_NUMBER;
+    }
 
+    int comment_line_reading = read_comment_line(inputFile, img);
+    if(comment_line_reading != EXIT_NO_ERRORS)
+    return comment_line_reading;
+
+    int image_header_reading = read_image_header(inputFile, input_filename, img);
+    if(image_header_reading != EXIT_NO_ERRORS)
+    return image_header_reading;
+
+    int image_data_allocating = allocate_image_data(inputFile, img);
+    if(image_data_allocating != EXIT_NO_ERRORS)
+    return image_data_allocating;
+
+    int image_header_writing = write_image_header(outputFile, output_filename, img, 2);
+    if(image_header_writing != EXIT_NO_ERRORS)
+    return image_header_writing;
+
+    /* Read binary data */
+    int reading_binary = read_binary(inputFile, input_filename, img);
+    if(reading_binary == EXIT_NO_ERRORS)
+    return EXIT_NO_ERRORS;
+    
     // Write ascii data
-    writeMatrix(outputFile, output_filename, img);
+    int matrixWriting = writeMatrix(outputFile, output_filename, img);
+    if(matrixWriting != EXIT_NO_ERRORS)
+    return matrixWriting;
 
     fclose(inputFile);
-    fclose(outputFile);
 
-    printf("CONVERTED");
+    printf("CONVERTED\n");
 
     return EXIT_NO_ERRORS;
 }
