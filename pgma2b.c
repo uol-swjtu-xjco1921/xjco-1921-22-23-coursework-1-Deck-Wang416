@@ -14,9 +14,17 @@ int pgma2b(char *input_filename, char *output_filename, FILE* inputFile, FILE *o
     if(open_input_result != EXIT_NO_ERRORS)
     return open_input_result;
 
-    int check_magic_result = check_magic_number(inputFile, input_filename, img);
-    if(check_magic_result != EXIT_NO_ERRORS)
-    return check_magic_result;
+    img->magic_number[0] = getc(inputFile);
+    img->magic_number[1] = getc(inputFile);
+    unsigned short* magic_Number = (unsigned short *) img->magic_number;
+    
+    /* Only accept ascii corresponding number */
+    if ((*magic_Number) != MAGIC_NUMBER_ASCII_PGM)
+    {
+        fclose(inputFile);
+        printf("ERROR: Bad Magic Number (%s)\n", input_filename);
+        return EXIT_BAD_MAGIC_NUMBER;
+    }
 
     int comment_line_reading = read_comment_line(inputFile, img);
     if(comment_line_reading != EXIT_NO_ERRORS)

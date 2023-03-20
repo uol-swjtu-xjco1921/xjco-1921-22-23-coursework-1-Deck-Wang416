@@ -18,6 +18,7 @@ int pgmb2a(char *input_filename, char *output_filename, FILE* inputFile, FILE *o
     img->magic_number[1] = getc(inputFile);
     unsigned short* magic_Number = (unsigned short *) img->magic_number;
     
+    /* Only accept binary corresponding number */
     if ((*magic_Number) != MAGIC_NUMBER_BINARY_PGM)
     {
         fclose(inputFile);

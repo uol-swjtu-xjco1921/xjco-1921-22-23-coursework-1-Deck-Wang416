@@ -42,9 +42,9 @@ int pgmComp(char *input_file1name, char *input_file2name)
     if(img1->magic_number[1] == 53)
     {
         /* Read binary file */
-        int reading_binary1 = read_binary(inputFile1, input_file1name, img1);
-        if(reading_binary1 == EXIT_NO_ERRORS)
-        return EXIT_NO_ERRORS;
+        int reading_binary = read_binary(inputFile1, input_file1name, img1);
+        if(reading_binary != EXIT_NO_ERRORS)
+        return reading_binary;
     }
 
     allocate_image_data(inputFile2, img2);
@@ -52,9 +52,9 @@ int pgmComp(char *input_file1name, char *input_file2name)
     if(img2->magic_number[1] == 53)
     {
         /* Read binary file */
-        int reading_binary1 = read_binary(inputFile2, input_file2name, img2);
-        if(reading_binary1 == EXIT_NO_ERRORS)
-        return EXIT_NO_ERRORS;
+        int reading_binary = read_binary(inputFile2, input_file2name, img2);
+        if(reading_binary != EXIT_NO_ERRORS)
+        return reading_binary;
     }
 
     if(img1->magic_number[1] != 53)

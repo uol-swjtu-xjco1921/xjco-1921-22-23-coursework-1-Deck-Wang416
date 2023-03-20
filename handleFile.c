@@ -45,12 +45,23 @@ FILE *inputFile, FILE *outputFile)
     if(image_data_allocating != EXIT_NO_ERRORS)
     return image_data_allocating;
 
-    int reading_ascii = read_ascii(inputFile, input_filename, img);
-    if(reading_ascii != EXIT_NO_ERRORS)
-    return reading_ascii;
+    if(img->magic_number[1] == 53)
+    {
+        /* Read binary file */
+        int reading_binary = read_binary(inputFile, input_filename, img);
+        if(reading_binary != EXIT_NO_ERRORS)
+        return reading_binary;
+    }
+
+    if(img->magic_number[1] != 53)
+    {
+        /* Read ascii file */
+        int reading_ascii = read_ascii(inputFile, input_filename, img);
+        if(reading_ascii != EXIT_NO_ERRORS)
+        return reading_ascii;
+    }
 
     int image_header_writing = write_image_header(outputFile, output_filename, img, 2);
-
     if(image_header_writing != EXIT_NO_ERRORS)
     return image_header_writing;
 
@@ -99,8 +110,9 @@ int check_magic_number(FILE *inputFile, char *input_filename, struct PGM_Image* 
     img->magic_number[0] = getc(inputFile);
     img->magic_number[1] = getc(inputFile);
     unsigned short* magic_Number = (unsigned short *) img->magic_number;
-    
-    if ((*magic_Number) != MAGIC_NUMBER_ASCII_PGM)
+
+    /* Accept ascii and bianry corresponding numbers */
+    if ((*magic_Number) != MAGIC_NUMBER_ASCII_PGM && (*magic_Number) != MAGIC_NUMBER_BINARY_PGM)
     {
         fclose(inputFile);
         printf("ERROR: Bad Magic Number (%s)\n", input_filename);
@@ -131,7 +143,7 @@ int read_comment_line(FILE *inputFile, struct PGM_Image* img)
             return EXIT_BAD_COMMENT_LINE;
         }
     }
-    
+
     else
     {
         ungetc(nextChar, inputFile);
@@ -216,7 +228,18 @@ int read_binary(FILE *inputFile, char *input_filename, struct PGM_Image* img)
     
     fread(&redundant_num, sizeof(unsigned char), 1, inputFile);
 
-    fread(img->imageData, sizeof(unsigned char), img->width * img->height, inputFile);
+    size_t bytesRead = fread(img->imageData, sizeof(unsigned char), img->width * img->height, inputFile);
+
+    if (bytesRead != img->width * img->height) 
+    {
+        free_img(img);
+
+        fclose(inputFile);
+
+        printf("ERROR: Bad Data (%s) \n", input_filename);
+
+        return EXIT_BAD_DATA;
+    }
 
     fclose(inputFile);
 
