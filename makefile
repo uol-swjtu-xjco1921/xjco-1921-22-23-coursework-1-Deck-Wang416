@@ -9,7 +9,7 @@ CC     = gcc
 # -g enables the use of GDB
 CFLAGS = -std=c99 -Wall -Werror -g
 # this is your list of executables which you want to compile with all
-EXE    = pgmEcho
+EXE    = pgmEcho pgma2b pgmb2a pgmComp pgmReduce
 
 # we put 'all' as the first command as this will be run if you just enter 'make'
 all: ${EXE}
@@ -32,6 +32,17 @@ clean:
 # at the moment, this is very simple as we are only using one .c file
 # but as you refactor and add more .c and .h files
 # these recipes will become more complex.
+pgmEcho: pgmEcho.o pgmEcho_func.o pgma2b_func.o pgmb2a_func.o pgmComp_func.o pgmImage.o pgmReduce_func.o
+	$(CC) $(CFLAGS) $^ -o $@
 
-pgmEcho: pgmEcho.o handleFile.o pgmImage.o pgma2b.o pgmb2a.o pgmComp.o 
-	$(CC) $(CCFLAGS) $^ -o $@
+pgma2b: pgma2b.o pgma2b_func.o pgmb2a_func.o pgmComp_func.o pgmEcho_func.o pgmImage.o pgmReduce_func.o
+	$(CC) $(CFLAGS) $^ -o $@
+
+pgmb2a: pgmb2a.o pgmb2a_func.o pgma2b_func.o pgmComp_func.o pgmEcho_func.o pgmImage.o pgmReduce_func.o
+	$(CC) $(CFLAGS) $^ -o $@
+
+pgmComp: pgmComp.o pgmComp_func.o pgma2b_func.o pgmb2a_func.o pgmEcho_func.o pgmImage.o pgmReduce_func.o
+	$(CC) $(CFLAGS) $^ -o $@
+
+pgmReduce: pgmReduce.o pgmReduce_func.o pgma2b_func.o pgmb2a_func.o pgmComp_func.o pgmEcho_func.o pgmImage.o
+	$(CC) $(CFLAGS) $^ -o $@
