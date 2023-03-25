@@ -1,8 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#include "handleFile.h"
-#include "pgmImage.h"
+#include "pgmEcho_func.h"
 
 int main(int argc, char **argv)
 { 
