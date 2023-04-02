@@ -5,3 +5,4 @@
 5. Modify pgmEcho to accept binary PGM as well as ASCII.
 6. Complete the reduce input file by the factor of part4.
 7. Add necessary main functions for each packaged program, then modify the "make file".
+8. Resolved memory leaks, optimized code and annotations.

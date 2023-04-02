@@ -26,28 +26,26 @@
 #define MAX_IMAGE_DIMENSION 65536
 #define MAX_COMMENT_LINE_LENGTH 128
 
-// Function declarations
-int handleFile(int argc, char* executable_name, char* input_filename, char* output_filename,
-FILE *inputFile,FILE *outputFile);
+int handleFile(int argc, char* executable_name, char* input_filename, char* output_filename);
 
 int check_args(int argc, char* executable_name);
 
-int open_input_file(FILE *inputFile, char *input_filename);
+int open_input_file(FILE* inputFile, char* input_filename);
 
-int check_magic_number(FILE *inputFile, char *input_filename, struct PGM_Image* img);
+int check_magic_number(FILE* inputFile, char* input_filename, struct PGM_Image* img);
 
-int read_comment_line(FILE *inputFile, struct PGM_Image* img);
+int read_comment_line(FILE* inputFile, struct PGM_Image* img);
 
-int read_image_header(FILE *inputFile, char *input_filename, struct PGM_Image *img);
+int read_image_header(FILE* inputFile, char* input_filename, struct PGM_Image* img);
 
-int allocate_image_data(FILE *inputFile, struct PGM_Image *img);
+int allocate_image_data(FILE* inputFile, struct PGM_Image* img);
 
-int read_ascii(FILE *inputFile, char *input_filename, struct PGM_Image* img);
+int read_ascii(FILE* inputFile, char* input_filename, struct PGM_Image* img);
 
-int read_binary(FILE *inputFile, char *input_filename, struct PGM_Image* img);
+int read_binary(FILE* inputFile, char* input_filename, struct PGM_Image* img);
 
-int write_image_header(FILE* outputFile, char* output_filename, struct PGM_Image *img, char num);
+int write_image_header(FILE* outputFile, char* output_filename, struct PGM_Image* img, char num);
 
-int writeMatrix(FILE* outputFile, char* output_filename, struct PGM_Image *img);
+int writeMatrix(FILE* outputFile, char* output_filename, struct PGM_Image* img);
 
 #endif

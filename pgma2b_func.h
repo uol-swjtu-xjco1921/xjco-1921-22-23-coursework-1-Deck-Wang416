@@ -3,7 +3,6 @@
 
 #include "pgmEcho_func.h"
 
-// Function declaration
-int pgma2b(char *input_filename, char *output_filename, FILE* inputFile, FILE *outputFile);
+int pgma2b(int argc, char* executable_name, char *input_filename, char *output_filename);
 
 #endif
