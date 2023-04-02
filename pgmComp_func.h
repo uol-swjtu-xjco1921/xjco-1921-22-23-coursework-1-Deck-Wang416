@@ -3,7 +3,6 @@
 
 #include "pgmEcho_func.h"
 
-// Function declaration
-int pgmComp(char *input_file1name, char *input_file2name);
+int pgmComp(int argc, char* executable_name, char *input_file1name, char *output_file2name);
 
 #endif

@@ -5,8 +5,5 @@
 
 int main(int argc, char **argv)
 { 
-	/* Call the function to read and write */
-	int Comparing_PGM = pgmComp(argv[1], argv[2]);
-
-	return Comparing_PGM;
-} 
+	return pgmComp(argc, argv[0], argv[1], argv[2]);
+}
